@@ -25,18 +25,6 @@ export default [{
 //   "route": "globallist",
 },{
   "icon": "el-icon-user-solid",
-  "name": "反馈",
-  "route": "feedbacklist",
-},{
-  "icon": "el-icon-user-solid",
-  "name": "帖子",
-  "route": "notelist",
-},{
-  "icon": "el-icon-user-solid",
-  "name": "集市",
-  "route": "shoplist",
-},{
-  "icon": "el-icon-user-solid",
-  "name": "用户",
-  "route": "userlist",
+  "name": "活动列表",
+  "route": "activitylist",
 }]

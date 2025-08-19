@@ -1,7 +1,7 @@
 <template>
   <div class="pageborder">
     <div class="pageback">
-      <envir-page-name style="background-color: #ffffff;" :noBack="true" pageName="帖子查询" />
+      <envir-page-name style="background-color: #ffffff;" :noBack="true" pageName="活动查询" />
       <div class="pagepadding">
         <el-button
           size="small"
@@ -12,40 +12,26 @@
           size="small"
           type="warning"
           style="margin-left: 16px;margin-bottom: 16px;"
-          @click="newDialog = true">新增/修改环境变量</el-button>
+          @click="newDialog = true">新增/修改活动</el-button>
         <div v-loading="loading">
           <el-table
             :data="tableData"
             :row-key="row => row.id"
             style="width: 100%">
             <el-table-column label="唯一ID" prop="id"> </el-table-column>
-            <!-- <el-table-column label="标题" prop="title"></el-table-column> -->
-            <el-table-column label="用户id" prop="userid"> </el-table-column>
-            <el-table-column label="内容" prop="content"> </el-table-column>
-            <el-table-column label="种类" prop="type">
-              <template #default="scope">
-                {{ list1[scope.row.type].name }}
-              </template>
-            </el-table-column>
-            <el-table-column label="状态" prop="statu">
-              <template #default="scope">
-                {{ scope.row.statu == 0 ? '未设置' : 
-                  scope.row.statu == 1 ? '通过' : 
-                  scope.row.statu == 2 ? '屏蔽' : 
-                  scope.row.statu == 3 ? '置顶' : '错误' }}
-              </template>
-            </el-table-column>
+            <el-table-column label="创建人id" prop="adminid"> </el-table-column>
+            <el-table-column label="管理员id列表" prop="adminidlist"> </el-table-column>
+            <el-table-column label="名称" prop="name"> </el-table-column>
+            <el-table-column label="设备id列表" prop="machineidlist"> </el-table-column>
+            <el-table-column label="状态" prop="statu"> </el-table-column>
+            <el-table-column label="识别码" prop="token"> </el-table-column>
             <el-table-column label="备注" prop="tip"> </el-table-column>
             <el-table-column label="操作">
               <template #default="scope">
-                <el-button type="primary" @click="confirm(scope.row.id, 1)">通过</el-button>
-                <el-button type="danger" @click="confirm(scope.row.id, 2)">屏蔽</el-button>
-                <el-button type="warning" @click="confirm(scope.row.id, 3)">置顶</el-button>
-              </template>
-            </el-table-column>
-            <el-table-column label="发布时间" prop="createAt">
-              <template #default="scope">
-                {{ timestamptodate(scope.row.createdAt) }}
+                <el-button
+                  size="small"
+                  type="success"
+                  @click="qropen = true">显示二维码</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -67,39 +53,59 @@
     </div>
     <el-dialog :close-on-click-modal="false" title="搜索内容" v-model="searchDialog">
       <div v-for="(search, index1) in searchNameList" :key="index1">
-        <el-input placeholder="请输入内容" v-model="searchObj[search.label]" style="margin:5px;">
+        <el-input placeholder="请输入内容" v-model="searchObj[search.label]" style="margin:5px;" v-if="!search.list">
           <template #prepend>{{search.name}}</template>
         </el-input>
+        <el-select v-model="searchObj[search.label]" style="margin:5px;" v-if="search.list">
+          <template #prefix>{{search.name}}<el-divider direction="vertical"/></template>
+          <el-option v-for="item in search.list" :key="item.value" :label="item.name" :value="item.value" />
+        </el-select>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="searchDialog = false">取 消</el-button>
         <el-button type="primary" @click="search()">搜 索</el-button>
       </div>
     </el-dialog>
-    <el-dialog :close-on-click-modal="false" title="新增/修改成员" v-model="newDialog" v-loading="newLoading">
+    <el-dialog :close-on-click-modal="false" title="新增/修改公司" v-model="newDialog" v-loading="newLoading">
       <div v-for="(user, index2) in userNameList" :key="index2">
-        <el-input placeholder="请输入内容" v-model="userInfoObj[user.label]" style="margin:5px;" 
-          :show-password="(user.label == 'password' || user.label == 'confirmPassword') ? true : false">
+        <el-input placeholder="请输入内容" v-model="userInfoObj[user.label]" style="margin:5px;" v-if="!user.list"
+          :show-password="(user.label == 'password' || user.label == 'confirmPassword' || user.label == 'pw' ) ? true : false">
           <template #prepend>{{user.name}}</template>
         </el-input>
+        <el-select v-model="userInfoObj[user.label]" style="margin:5px;" v-if="user.list">
+          <template #prefix>{{user.name}}<el-divider direction="vertical"/></template>
+          <el-option v-for="item in user.list" :key="item.value" :label="item.name" :value="item.value" />
+        </el-select>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="newDialog = false">取 消</el-button>
         <el-button type="primary" @click="newUser()">新增/修改</el-button>
       </div>
     </el-dialog>
+    <el-dialog :close-on-click-modal="false" title="二维码" v-model="qropen">
+      <vue-qr
+        :text="qrurl"
+        :size="200"
+        :margin="10"
+        colorDark="#000"
+        colorLight="#fff"
+        ref="qrcode"
+      ></vue-qr>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="qropen = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
+import vueQr from 'vue-qr/src/packages/vue-qr.vue';
 import { ref } from 'vue'
 import { onMounted } from 'vue'
 import api from '@/api';
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus'
 const router = useRouter();
-
-const input = ref(1);
 
 const params = ref({
   page: 1,
@@ -117,30 +123,18 @@ const userInfoObj = ref({});
 const userNameList = ref([]);
 const newDialog = ref(false);
 
-const list1 = ref([{
-    name: '未分类',
-}, {
-    name: '吐槽爆料'
-}, {
-    name: '树洞'
-}, {
-    name: '表白交友'
-}, {
-    name: '学业疑难'
-}, {
-    name: '找搭子'
-}, {
-    name: '兼职'
-}]);
+const qrurl = ref('https://www.example.com');
+const qropen = ref(false);
 
 onMounted(async () => {
   searchNameList.value = [];
-  searchNameList.value.push({name: '唯一id',label: 'id'});
-  searchNameList.value.push({name: '内容',label: 'content'});
+  searchNameList.value.push({name: '公司id',label: 'companyid'});
   userNameList.value = [];
   userNameList.value.push({name: '唯一id，不填则新增',label: 'id'});
-  userNameList.value.push({name: '内容',label: 'content'});
-  userNameList.value.push({name: '种类（1吐槽爆料，2树洞，3表白交友，4学业疑难，5找搭子）',label: 'type'});
+  userNameList.value.push({name: '名称',label: 'name'});
+  userNameList.value.push({name: '活动执行人列表',label: 'adminidlist'});
+  userNameList.value.push({name: '设备列表',label: 'machineidlist'});
+  userNameList.value.push({name: '状态',label: 'statu'});
   userNameList.value.push({name: '备注',label: 'tip'});
   await getList();
 })
@@ -170,7 +164,7 @@ const getList = async () => {
       postbody.limit = params.value.pagesize;
     } 
     postbody.searchObj = searchObj.value;
-    const { result } = await api.post('/searchnote', postbody);
+    const { result } = await api.post('/adminsearchactivity', postbody);
     console.log(result);
     tableData.value = result.rows;
     allamount.value = result.count;
@@ -183,28 +177,8 @@ const getList = async () => {
 const newUser = async () => {
   try{
     newLoading.value = true;
-    const result = await api.post('/createnote', {
+    const result = await api.post('/changeactivity', {
       obj: userInfoObj.value
-    });
-    console.log(result);
-    ElMessage('创建成功')
-    userInfoObj.value = {};
-    newDialog.value = false;
-    newLoading.value = false;
-    await getList();
-  }catch(e){
-    console.error(e);
-    newLoading.value = false;
-  }
-}
-const confirm = async (id, statu) => {
-  try{
-    newLoading.value = true;
-    const result = await api.post('/createnote', {
-      obj: {
-        id: id,
-        statu: statu
-      }
     });
     console.log(result);
     ElMessage('创建成功')
@@ -220,7 +194,7 @@ const confirm = async (id, statu) => {
 
 const timestamptodate = (timestamp) => {
   if(!timestamp) return "";
-  const getdate = new Date(timestamp);
+  const getdate = new Date(parseInt(timestamp))
   let mf = getdate.getHours() < 10 ? '0' + getdate.getHours() : getdate.getHours();
   let ss = getdate.getMinutes() < 10 ? '0' + getdate.getMinutes() : getdate.getMinutes();
   return getdate.getFullYear() + "-" + (getdate.getMonth() + 1) + "-" + getdate.getDate() + " " + mf + ":" + ss;
@@ -229,22 +203,5 @@ const timestamptodate = (timestamp) => {
 </script>
 
 <style scoped>
-.demo-table-expand {
-  font-size: 0;
-}
-.demo-table-expand label {
-  width: 90px;
-  color: #99a9bf;
-}
-.demo-table-expand .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 100%;
-}
-.overhide{
-  width: 144px;
-  white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 </style>
