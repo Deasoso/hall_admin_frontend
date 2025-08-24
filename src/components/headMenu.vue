@@ -66,7 +66,7 @@ export default {
 			this.$router.push('/home')
 		},
 		logout(){
-			localStorage.removeItem("xiaoyuan_superadmin_userInfo");
+			localStorage.removeItem("machine_admin_userInfo");
 			this.$router.replace('/login')
 		}
 	}

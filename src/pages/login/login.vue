@@ -44,8 +44,8 @@ export default {
 				});
 				console.log(userinfo);
 				// console.info(JSON.stringify(userinfo.data).replace(/,/g, ",\n")) // 转成json，方便复制
-				localStorage.removeItem("xiaoyuan_superadmin_userInfo");
-				localStorage.setItem('xiaoyuan_superadmin_userInfo', userinfo.token);
+				localStorage.removeItem("machine_admin_userInfo");
+				localStorage.setItem('machine_admin_userInfo', userinfo.token);
 				this.$message.success('登录成功');
 				this.$router.push('/activitylist');
 				this.loading = false;
