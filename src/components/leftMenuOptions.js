@@ -25,6 +25,10 @@ export default [{
 //   "route": "globallist",
 },{
   "icon": "el-icon-user-solid",
-  "name": "活动列表",
-  "route": "activitylist",
+  "name": "用户列表",
+  "route": "userlist",
+},{
+  "icon": "el-icon-user-solid",
+  "name": "游戏列表",
+  "route": "gamelist",
 }]

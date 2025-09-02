@@ -1,7 +1,7 @@
 <template>
   <div class="pageborder">
     <div class="pageback">
-      <envir-page-name style="background-color: #ffffff;" :noBack="true" pageName="活动查询" />
+      <envir-page-name style="background-color: #ffffff;" :noBack="true" pageName="用户查询" />
       <div class="pagepadding">
         <el-button
           size="small"
@@ -12,7 +12,7 @@
           size="small"
           type="warning"
           style="margin-left: 16px;margin-bottom: 16px;"
-          @click="newDialog = true">新增/修改活动</el-button>
+          @click="newDialog = true">新增/修改用户</el-button>
         <el-tabs v-model="activeIndex" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane v-for="(item, index) in tabList" :key="index" :label="item" :name="index"></el-tab-pane>
         </el-tabs>
@@ -29,25 +29,9 @@
             :row-key="row => row.id"
             style="width: 100%">
             <el-table-column label="唯一ID" prop="id"> </el-table-column>
-            <el-table-column label="创建人id" prop="adminid"> </el-table-column>
-            <el-table-column label="管理员id列表" prop="adminidlist"> </el-table-column>
-            <el-table-column label="名称" prop="name"> </el-table-column>
-            <el-table-column label="设备id列表" prop="machineidlist"> </el-table-column>
-            <el-table-column label="状态" prop="statu">
-              <template #default="scope">
-                {{ statulist.find(item => item.value == scope.row.statu).name }}
-              </template>
-            </el-table-column>
-            <el-table-column label="识别码" prop="token"> </el-table-column>
-            <el-table-column label="备注" prop="tip"> </el-table-column>
-            <el-table-column label="操作">
-              <template #default="scope">
-                <el-button
-                  size="small"
-                  type="success"
-                  @click="qropen = true">显示二维码</el-button>
-              </template>
-            </el-table-column>
+            <el-table-column label="名称" prop="id"> </el-table-column>
+            <el-table-column label="头像" prop="id"> </el-table-column>
+            <el-table-column label="余额" prop="id"> </el-table-column>
           </el-table>
         </div>
         <div style="margin-top: 30px">
@@ -96,24 +80,10 @@
         <el-button type="primary" @click="newUser()">新增/修改</el-button>
       </div>
     </el-dialog>
-    <el-dialog :close-on-click-modal="false" title="二维码" v-model="qropen">
-      <vue-qr
-        :text="qrurl"
-        :size="200"
-        :margin="10"
-        colorDark="#000"
-        colorLight="#fff"
-        ref="qrcode"
-      ></vue-qr>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="qropen = false">关 闭</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import vueQr from 'vue-qr/src/packages/vue-qr.vue';
 import { ref } from 'vue'
 import { onMounted } from 'vue'
 import api from '@/api';
@@ -137,44 +107,13 @@ const userInfoObj = ref({});
 const userNameList = ref([]);
 const newDialog = ref(false);
 
-const statulist = ref([
-  {name: '未开始', value: 0}, 
-  {name: '进行中', value: 1}, 
-  {name: '已结束', value: 2}
-]);
-
-const adminlist = ref([
-  {name: '乐白机械臂', value: 0}, 
-  {name: '法奥机械臂', value: 1}, 
-]);
-
-const machinelist = ref([
-  {name: '乐白机械臂', value: 0}, 
-  {name: '法奥机械臂', value: 1}, 
-]);
-
-const qrurl = ref('https://www.example.com');
-const qropen = ref(false);
-
 onMounted(async () => {
   searchNameList.value = [];
-  searchNameList.value.push({name: '状态',label: 'statu', list: statulist.value });
+  searchNameList.value.push({name: '状态',label: 'statu' });
   userNameList.value = [];
   userNameList.value.push({name: '唯一id，不填则新增',label: 'id'});
-  userNameList.value.push({name: '名称',label: 'name'});
-  userNameList.value.push({name: '活动执行人列表',label: 'adminidlist',
-    list: adminlist.value, multiple: true
-  });
-  userNameList.value.push({name: '设备列表',label: 'machineidlist',
-    list: machinelist.value, multiple: true
-  });
-  userNameList.value.push({name: '状态',label: 'statu',
-    list: statulist.value
-  });
-  userNameList.value.push({name: '备注',label: 'tip'});
-  await getList();
-  await getAdminList();
-  await getMachineList();
+
+  // await getList();
 })
 
 const handleSizeChange = (val) => {
@@ -219,7 +158,7 @@ const newUser = async () => {
       obj: userInfoObj.value
     });
     console.log(result);
-    ElMessage('创建成功')
+    ElMessage('修改成功')
     userInfoObj.value = {};
     newDialog.value = false;
     newLoading.value = false;
@@ -243,42 +182,6 @@ const handleClick = (tab) => {
   }
   getList();
   console.log(searchObj.value);
-}
-
-const getAdminList = async () => {
-  const { result } = await api.post('/searchadmin', {
-    searchObj: {
-      type: userInfoObj.value.type
-    }
-  });
-  console.log(result);
-  var newadminlist = [];
-  for(const index in result.rows){
-    newadminlist.push({
-      name: result.rows[index].name,
-      value: result.rows[index].id
-    })
-  }
-  adminlist.value = newadminlist;
-  userNameList.value[2].list = newadminlist;
-}
-
-const getMachineList = async () => {
-  const { result } = await api.post('/searchmachine', {
-    searchObj: {
-      type: userInfoObj.value.type
-    }
-  });
-  console.log(result);
-  var newmachinelist = [];
-  for(const index in result.rows){
-    newmachinelist.push({
-      name: result.rows[index].name,
-      value: result.rows[index].id
-    })
-  }
-  machinelist.value = newmachinelist;
-  userNameList.value[3].list = newmachinelist;
 }
 
 const timestamptodate = (timestamp) => {

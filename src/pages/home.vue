@@ -3,7 +3,7 @@
     <div class="pageback">
       <envir-page-name style="background-color: #ffffff;" :noBack="true" pageName="首页" />
       <div class="pageinpadding">
-        <div style="margin-left: 16px;">欢迎来到青圭校园系统管理前端！</div>
+        <div style="margin-left: 16px;">欢迎来到游戏大厅系统管理前端！</div>
         <!-- <div class="search">
           <el-row>
             <el-col :span="12">

@@ -4,7 +4,8 @@ import home from '@/pages/home'
 import login from '@/pages/login/login'
 import mainpage from '@/components/mainPage'
 
-import activitylist from '@/pages/main/activitylist'
+import userlist from '@/pages/main/userlist'
+import gamelist from '@/pages/main/gamelist'
 
 const routes = [
 	{
@@ -25,9 +26,13 @@ const routes = [
 			path: '/home',
 			component: home,
 		},{
-			path: '/activitylist',
-			component: activitylist,
-			meta: ['环境变量列表'],
+			path: '/userlist',
+			component: userlist,
+			meta: ['用户列表'],
+		},{
+			path: '/gamelist',
+			component: userlist,
+			meta: ['游戏列表'],
 		}
 	]},
 

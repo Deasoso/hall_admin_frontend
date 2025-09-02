@@ -1,4 +1,4 @@
-# xiaoyuan_admin_frontend_new
+# hall_admin_frontend
 
 ## Project setup
 ```

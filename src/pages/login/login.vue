@@ -3,7 +3,7 @@
 		<div class="loginwindow">
 			<div class="rightback" v-loading="loading">
 				<div class="welcometext">
-					欢迎登录机械臂系统后台
+					欢迎登录游戏列表系统后台
 				</div>
 				<el-input placeholder="请输入账号" v-model="username" class="idinput">
 					<i style="color:#3a62d7;" slot="prepend" class="el-icon-user-solid"></i>
@@ -37,17 +37,16 @@ export default {
 			this.loading = true;
 			var userinfo;
 			try{
-				userinfo = await api.login("/loginadmin", {
-					username: this.username,
-					password: CryptoJS.SHA1(this.password + 'school_pw').toString(),
-					logintype: 3
-				});
-				console.log(userinfo);
-				// console.info(JSON.stringify(userinfo.data).replace(/,/g, ",\n")) // 转成json，方便复制
-				localStorage.removeItem("machine_admin_userInfo");
-				localStorage.setItem('machine_admin_userInfo', userinfo.token);
+				// userinfo = await api.login("/loginadmin", {
+				// 	username: this.username,
+				// 	password: CryptoJS.SHA1(this.password + 'machine_pw').toString(),
+				// 	logintype: 3
+				// });
+				// console.log(userinfo);
+				// localStorage.removeItem("machine_admin_userInfo");
+				// localStorage.setItem('machine_admin_userInfo', userinfo.token);
 				this.$message.success('登录成功');
-				this.$router.push('/activitylist');
+				this.$router.push('/userlist');
 				this.loading = false;
 			}catch(e){
 				console.error(e);
